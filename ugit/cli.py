@@ -45,4 +45,4 @@ def hash_object(args):
         
 def cat_file(args):
     sys.stdout.flush()
-    sys.stdout.buffer.write(data.get_object(args.object))
+    sys.stdout.buffer.write(data.get_object(args.object,expected=None))
