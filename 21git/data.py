@@ -25,7 +25,7 @@ def get_object(oid:str, expected:str = "blob") -> bytes:
         file = f.read()
         
         NULL = b'\x00'
-        type_,content = file.split(NULL)
+        type_,_,content = file.partition(NULL)
         type_ = type_.decode()
     
     #When expected is provided (not None)

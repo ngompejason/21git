@@ -1,7 +1,9 @@
 import argparse
 import os
-from . import data
 import sys
+from . import data
+from . import base
+
 
 def main():
     # parse command line arguments and execute the appropriate function
@@ -21,15 +23,24 @@ def git_parse_args():
     init_parser = commands.add_parser("init")
     init_parser.set_defaults(func=init)
     
-    #add ''hash-object' subcommmand
+    #add 'hash-object' subcommmand
     hash_object_parser = commands.add_parser("hash-object")
     hash_object_parser.set_defaults(func=hash_object)
     hash_object_parser.add_argument("file")
     
-    #add ''hash-object' subcommmand
+    #add 'cat-file' subcommmand
     cat_file_parser = commands.add_parser("cat-file")
     cat_file_parser.set_defaults(func=cat_file)
     cat_file_parser.add_argument("object")
+    
+    #add 'write-tree' subcommmand
+    write_tree_parser = commands.add_parser ('write-tree')
+    write_tree_parser.set_defaults (func=write_tree)
+    
+    #add 'read-tree' subcommand
+    read_tree_parser = commands.add_parser ('read-tree')
+    read_tree_parser.set_defaults (func=read_tree)
+    read_tree_parser.add_argument ('tree')
     
     return parser.parse_args()
 
@@ -46,3 +57,10 @@ def hash_object(args):
 def cat_file(args):
     sys.stdout.flush()
     sys.stdout.buffer.write(data.get_object(args.object,expected=None))
+    
+def write_tree(args):
+    print(base.write_tree())
+    
+    
+def read_tree(args):
+    base.read_tree(args.tree)
