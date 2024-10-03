@@ -91,7 +91,12 @@ def read_tree(tree_oid):
         with open(path, "wb") as file:
             file.write(data.get_object(oid))  # Write the object content to the file
 
-
+def commit(message):
+    commit = f"tree {write_tree()}"
+    commit += "\n"
+    commit += f"{message}!\n"
+    
+    return data.hash_object(commit.encode(), 'commit')
 
 
 def is_ignored(entry_name: str) -> bool:
@@ -103,6 +108,3 @@ def is_ignored(entry_name: str) -> bool:
     
     # Check if any part of the path is in ignored_dirs
     return any(part in ignored_dirs for part in parts)
-
-
-# version 1

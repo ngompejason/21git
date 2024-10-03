@@ -42,6 +42,11 @@ def git_parse_args():
     read_tree_parser.set_defaults (func=read_tree)
     read_tree_parser.add_argument ('tree')
     
+    #add 'commit' subcommand
+    commit_parser = commands.add_parser ('commit')
+    commit_parser.set_defaults (func=commit_func)
+    commit_parser.add_argument ('-m', '--message', required=True)
+    
     return parser.parse_args()
 
 def init(args):
@@ -64,3 +69,7 @@ def write_tree(args):
     
 def read_tree(args):
     base.read_tree(args.tree)
+
+
+def commit_func(args):
+    base.commit(args.message)
