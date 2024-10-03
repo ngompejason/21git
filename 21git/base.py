@@ -28,7 +28,7 @@ def write_tree(directory: str = ".") -> bytes:
     return data.hash_object(tree.encode(), "tree")
 
 
-def _iter_tree_entries(oid_parameter):
+def _iter_tree_entries(oid_parameter:str):
     # Return early if oid_parameter is None or empty
     if not oid_parameter:
         return
@@ -82,7 +82,7 @@ def _empty_current_directory():
                 except OSError:
                     pass  # Skip if the directory is not empty
 
-def read_tree(tree_oid):
+def read_tree(tree_oid:str):
     _empty_current_directory()  # Clear the current working directory
 
     # Create files based on the tree structure
@@ -91,12 +91,15 @@ def read_tree(tree_oid):
         with open(path, "wb") as file:
             file.write(data.get_object(oid))  # Write the object content to the file
 
-def commit(message):
-    commit = f"tree {write_tree()}"
+def commit(message:str) -> str:
+    tree_hash = write_tree()
+    commit = f"tree {tree_hash}\n"
     commit += "\n"
-    commit += f"{message}!\n"
-    
-    return data.hash_object(commit.encode(), 'commit')
+    commit += f"{message}\n"
+
+    commit_hash = data.hash_object(commit.encode(), "commit")
+    print(f"Tree hash: {tree_hash}\nCommit hash: {commit_hash}")
+    return commit_hash
 
 
 def is_ignored(entry_name: str) -> bool:
