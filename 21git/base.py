@@ -7,17 +7,27 @@ def write_tree(directory: str = ".") -> bytes:
     with os.scandir(directory) as dir_tree:
         for entry in dir_tree:
             if entry.is_file(follow_symlinks=False):
-                # Hash file contents
-                type_ = "blob"
-                with open(entry.path, 'rb') as file:
-                    oid = data.hash_object(file.read())
+                try:
+                    # Hash file contents
+                    type_ = "blob"
+                    with open(entry.path, 'rb') as file:
+                        oid = data.hash_object(file.read())
+                except FileNotFoundError:
+                    print(f"File:{entry.path} Not Found")
+                    # Handle the case where the file was deleted or moved after the check
+                    continue
             elif is_ignored(entry.path):
                 # Skip ignored directories
                 continue
             elif not entry.name.startswith('.') and entry.is_dir(follow_symlinks=False):
-                # Recursively process subdirectories
-                type_ = "tree"
-                oid = write_tree(entry.path)
+                try:
+                    # Recursively process subdirectories
+                    type_ = "tree"
+                    oid = write_tree(entry.path)
+                except FileNotFoundError:
+                    print(f"Directory:{entry.path} Not Found")
+                    # Handle the case where the file was deleted or moved after the check
+                    continue
             else:
                 continue
             
@@ -32,13 +42,13 @@ def _iter_tree_entries(oid_parameter:str):
     # Return early if oid_parameter is None or empty
     if not oid_parameter:
         return
-
     # Retrieve the tree object and decode it
     tree = data.get_object(oid_parameter, "tree")
     for entry in tree.decode().splitlines():
         # Split each entry into type, oid, and name
         type_, oid, name = entry.split(" ", 2)
         yield type_, oid, name  # Yield parsed entry for iteration
+
 
 def get_tree(oid_parameter: str, base_path: str = "") -> dict:
     result = {}
@@ -62,7 +72,6 @@ def get_tree(oid_parameter: str, base_path: str = "") -> dict:
         
     return result  # Return the assembled dictionary of paths and oids
 
-    
 
 def _empty_current_directory():
     # Traverse the current directory from bottom to top
@@ -72,7 +81,6 @@ def _empty_current_directory():
             path = os.path.join(root, file)
             if not is_ignored(path):
                 os.remove(path)
-
         # Remove directories that are not ignored
         for dir in dirs:
             path = os.path.join(root, dir)
@@ -82,25 +90,32 @@ def _empty_current_directory():
                 except OSError:
                     pass  # Skip if the directory is not empty
 
-def read_tree(tree_oid:str):
-    _empty_current_directory()  # Clear the current working directory
 
+def read_tree(tree_oid:str):
+    
+    _empty_current_directory()  # Clear the current working directory
+    
     # Create files based on the tree structure
     for path, oid in get_tree(tree_oid, base_path="./").items():
         os.makedirs(os.path.dirname(path), exist_ok=True) 
         with open(path, "wb") as file:
             file.write(data.get_object(oid))  # Write the object content to the file
 
+
 def commit(message:str) -> str:
+    
     tree_oid = write_tree()
     commit = f"tree {tree_oid}\n"
+    head = data.get_HEAD()
+    if head:
+        commit += f"parent {head}\n"
     commit += "\n"
     commit += f"{message}\n"
-
+    
     commit_oid = data.hash_object(commit.encode(), "commit")
     data.set_HEAD(commit_oid)
     
-    print(f"Tree hash: {tree_oid}\nCommit hash: {commit_oid}")
+    print(f"Tree OID: {tree_oid}\nCommit OID: {commit_oid}")
     
     return commit_oid
 
