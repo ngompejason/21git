@@ -6,7 +6,11 @@ GIT_DIR = ".21git"
 def init():
     os.makedirs(GIT_DIR, exist_ok=True)
     os.makedirs(os.path.join(GIT_DIR, "objects"), exist_ok=True)
-    
+
+def set_HEAD(commit_oid:str):
+    file_path = os.path.join(GIT_DIR, "HEAD")
+    with open(file_path, "w") as head:
+        head.write(commit_oid)
 
 def hash_object(file_content:bytes, type_:str="blob") -> str:
     NULL = b'\x00'

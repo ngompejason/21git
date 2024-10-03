@@ -92,14 +92,17 @@ def read_tree(tree_oid:str):
             file.write(data.get_object(oid))  # Write the object content to the file
 
 def commit(message:str) -> str:
-    tree_hash = write_tree()
-    commit = f"tree {tree_hash}\n"
+    tree_oid = write_tree()
+    commit = f"tree {tree_oid}\n"
     commit += "\n"
     commit += f"{message}\n"
 
-    commit_hash = data.hash_object(commit.encode(), "commit")
-    print(f"Tree hash: {tree_hash}\nCommit hash: {commit_hash}")
-    return commit_hash
+    commit_oid = data.hash_object(commit.encode(), "commit")
+    data.set_HEAD(commit_oid)
+    
+    print(f"Tree hash: {tree_oid}\nCommit hash: {commit_oid}")
+    
+    return commit_oid
 
 
 def is_ignored(entry_name: str) -> bool:
