@@ -3,6 +3,7 @@ import os
 import sys
 from . import data
 from . import base
+import textwrap
 
 
 def main():
@@ -47,6 +48,10 @@ def git_parse_args():
     commit_parser.set_defaults (func=commit)
     commit_parser.add_argument ('-m', '--message', required=True)
     
+    #add 'log' subcommand
+    log_parser = commands.add_parser ('log')
+    log_parser.set_defaults (func=log_func)    
+    
     return parser.parse_args()
 
 def init(args):
@@ -73,3 +78,14 @@ def read_tree(args):
 
 def commit(args):
     base.commit(args.message)
+
+
+def log_func(args):
+    oid_HEAD:str = data.get_HEAD()
+    while oid_HEAD:
+        commit_info = base.get_commit(oid_HEAD)
+        print(f"commit: {oid_HEAD}\n")
+        print(textwrap.indent(commit_info.message,"    "))
+        print("-"*40)
+        
+        oid_HEAD = commit_info.parent

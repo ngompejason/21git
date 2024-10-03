@@ -1,5 +1,8 @@
 import os
 from . import data
+from collections import namedtuple
+import itertools
+import operator
 
 def write_tree(directory: str = ".") -> bytes:
     # Recursively build a tree object, hashing files and subdirectories
@@ -103,21 +106,41 @@ def read_tree(tree_oid:str):
 
 
 def commit(message:str) -> str:
-    
     tree_oid = write_tree()
     commit = f"tree {tree_oid}\n"
     head = data.get_HEAD()
+    print(f"Debug: Current HEAD before commit: {head}")
     if head:
-        commit += f"parent {head}\n"
+        commit += f"parent {head.decode() if isinstance(head, bytes) else head}\n"
     commit += "\n"
     commit += f"{message}\n"
     
     commit_oid = data.hash_object(commit.encode(), "commit")
     data.set_HEAD(commit_oid)
     
-    print(f"Tree OID: {tree_oid}\nCommit OID: {commit_oid}")
+    print(f"Commit OID: {commit_oid}")
     
     return commit_oid
+
+
+Commit = namedtuple('Commit', ['tree','parent','message'])
+
+def get_commit(commit_oid:str) -> Commit:
+    parent = None
+    
+    commit_content:str = data.get_object(commit_oid, "commit").decode()
+    lines = iter(commit_content.splitlines())
+    for line in itertools.takewhile(operator.truth, lines):
+        key, value = line.split(" ", 1)
+        if key == "tree":
+            tree = value
+        elif key == "parent":
+            parent = value
+        else:
+            print(f"Unknown key:{key}")
+    
+    commit_message:str = "\n".join(lines)
+    return Commit(tree=tree, parent=parent, message=commit_message)
 
 
 def is_ignored(entry_name: str) -> bool:

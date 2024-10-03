@@ -9,11 +9,13 @@ def init():
     os.makedirs(GIT_DIR, exist_ok=True)
     os.makedirs(os.path.join(GIT_DIR, "objects"), exist_ok=True)
 
+
 def set_HEAD(commit_oid:str):
     try:
-        # Write the commit_oid to the HEAD file
+        print(f"Debug: Setting HEAD to: {commit_oid}")  # Debug log
         with open(file_path, "w") as head:
             head.write(commit_oid)
+        print(f"Debug: HEAD after setting: {get_HEAD()}")  # Debug log
     except FileNotFoundError:
         print(f"File: {file_path} not found")
     except PermissionError:
@@ -21,12 +23,17 @@ def set_HEAD(commit_oid:str):
     except Exception as e:
         print(f"An error occurred: {e}")
 
+
 def get_HEAD():
     try:
-        with open(file_path, "rb") as file:
-            return file.read().strip()
+        with open(file_path, "r") as file:
+            content = file.read().strip()
+            return content
+    except FileNotFoundError:
+        pass
     except Exception as e:
-        print(f"Exception: {e}")
+        print(f"Debug: Exception in get_HEAD: {e}")  # Debug log
+        return None  # Return None instead of silently passing
 
 
 def hash_object(file_content:bytes, type_:str="blob") -> str:
@@ -38,8 +45,8 @@ def hash_object(file_content:bytes, type_:str="blob") -> str:
         out.write(data)
     
     return oid
-    
-    
+
+
 def get_object(oid:str, expected:str = "blob") -> bytes:
     hash_file_path:str = os.path.join(GIT_DIR, "objects", oid)
     with open(hash_file_path, "rb") as f:
