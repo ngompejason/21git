@@ -53,6 +53,12 @@ def git_parse_args():
     log_parser.set_defaults(func=log_func)
     log_parser.add_argument("oid", nargs="?")
     
+    #add 'log' subcommand
+    checkout_parser = commands.add_parser('checkout')
+    checkout_parser.set_defaults(func=log_func)
+    checkout_parser.add_argument("oid")
+    
+        
     return parser.parse_args()
 
 def init(args):
@@ -90,3 +96,7 @@ def log_func(args):
         print("-"*40)
         
         oid_HEAD = commit_info.parent
+
+
+def checkout(args):
+    base.checkout(args.oid)

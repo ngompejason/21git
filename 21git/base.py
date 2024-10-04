@@ -142,6 +142,11 @@ def get_commit(commit_oid:str) -> Commit:
     commit_message:str = "\n".join(lines)
     return Commit(tree=tree, parent=parent, message=commit_message)
 
+def checkout(oid):
+    commit_info = get_commit(oid)
+    read_tree(commit_info.tree)
+    data.set_HEAD(oid)
+
 
 def is_ignored(entry_name: str) -> bool:
     # Check if directory should be ignored
