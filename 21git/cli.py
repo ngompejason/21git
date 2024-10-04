@@ -35,22 +35,23 @@ def git_parse_args():
     cat_file_parser.add_argument("object")
     
     #add 'write-tree' subcommmand
-    write_tree_parser = commands.add_parser ('write-tree')
-    write_tree_parser.set_defaults (func=write_tree)
+    write_tree_parser = commands.add_parser('write-tree')
+    write_tree_parser.set_defaults(func=write_tree)
     
     #add 'read-tree' subcommand
-    read_tree_parser = commands.add_parser ('read-tree')
-    read_tree_parser.set_defaults (func=read_tree)
-    read_tree_parser.add_argument ('tree')
+    read_tree_parser = commands.add_parser('read-tree')
+    read_tree_parser.set_defaults(func=read_tree)
+    read_tree_parser.add_argument('tree')
     
     #add 'commit' subcommand
-    commit_parser = commands.add_parser ('commit')
-    commit_parser.set_defaults (func=commit)
-    commit_parser.add_argument ('-m', '--message', required=True)
+    commit_parser = commands.add_parser('commit')
+    commit_parser.set_defaults(func=commit)
+    commit_parser.add_argument('-m', '--message', required=True)
     
     #add 'log' subcommand
-    log_parser = commands.add_parser ('log')
-    log_parser.set_defaults (func=log_func)    
+    log_parser = commands.add_parser('log')
+    log_parser.set_defaults(func=log_func)
+    log_parser.add_argument("oid", nargs="?")
     
     return parser.parse_args()
 
@@ -81,7 +82,7 @@ def commit(args):
 
 
 def log_func(args):
-    oid_HEAD:str = data.get_HEAD()
+    oid_HEAD:str = args.oid or data.get_HEAD()
     while oid_HEAD:
         commit_info = base.get_commit(oid_HEAD)
         print(f"commit: {oid_HEAD}\n")
