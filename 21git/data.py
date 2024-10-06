@@ -6,7 +6,6 @@ GIT_DIR = ".21git"
 file_path = os.path.join(GIT_DIR, "HEAD")
 
 def init():
-    os.makedirs(GIT_DIR, exist_ok=True)
     os.makedirs(os.path.join(GIT_DIR, "objects"), exist_ok=True)
 
 

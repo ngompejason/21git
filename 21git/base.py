@@ -145,6 +145,10 @@ def get_commit(commit_oid:str) -> Commit:
 def checkout(oid):
     commit_info = get_commit(oid)
     read_tree(commit_info.tree)
+    try:
+        print(f"Commit before checkout: {data.get_HEAD()}")
+    except:
+        pass
     data.set_HEAD(oid)
 
 

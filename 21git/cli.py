@@ -53,9 +53,9 @@ def git_parse_args():
     log_parser.set_defaults(func=log_func)
     log_parser.add_argument("oid", nargs="?")
     
-    #add 'log' subcommand
+    #add 'checkout' subcommand
     checkout_parser = commands.add_parser('checkout')
-    checkout_parser.set_defaults(func=log_func)
+    checkout_parser.set_defaults(func=checkout)
     checkout_parser.add_argument("oid")
     
         
